@@ -1,0 +1,10 @@
+name = Villa lagarto
+description = Custom module development for the Villa Lagarto Drupal site
+package = Custom
+core = 7.x
+
+version = "7.x-3.0-alpha1"
+core = "7.x"
+project = "lagarto"
+datestamp = "1312195614"
+
