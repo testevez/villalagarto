@@ -10,3 +10,12 @@ sites/*/private
 .project
 .settings/
 
+# Ignore Mac files
+.DS_Store
+*/.DS_Store
+
+# Ignore PHP Storm config
+.idea/
+
+# Ignore SQL
+*.sql
