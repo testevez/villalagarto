@@ -1,6 +1,7 @@
 <?php
+
 /**
- * @file views-view-fields.tpl.php
+ * @file
  * Default simple view template to all the fields as a row.
  *
  * - $view: The view in use.
@@ -24,9 +25,6 @@
  */
 ?>
 <?php foreach ($fields as $id => $field): ?>
-
-  <?php if ($id == 'title') print '<div class="copy"><div class="copy-back"></div>';  ?>
-
   <?php if (!empty($field->separator)): ?>
     <?php print $field->separator; ?>
   <?php endif; ?>
@@ -35,7 +33,4 @@
     <?php print $field->label_html; ?>
     <?php print $field->content; ?>
   <?php print $field->wrapper_suffix; ?>
-  
-  <?php if ($id == 'body') print '</div class="backboard">';  ?>
-  
 <?php endforeach; ?>

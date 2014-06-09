@@ -48,3 +48,26 @@ function lagarto_menu() {
   
   return $items;
 }
+
+/**
+ * Add custom CSS to override best_responsive_theme.
+ *
+ * This hook is run at the beginning of the page request. It is typically
+ * used to set up global parameters that are needed later in the request.
+ * When this hook is called, the theme and all modules are already loaded in
+ * memory.
+ *
+ * This hook is not run on cached pages.
+ *
+ * To add CSS or JS that should be present on all pages, modules should not
+ * implement this hook, but declare these files in their .info file.
+ *
+ * @see hook_boot()
+ */
+function lagarto_init() {
+  // Since this file should only be loaded with the best_responsive theme, it cannot be
+  // declared in the info file.
+  // TODO: add condition to only include this file is best_responsive is the active theme
+  drupal_add_css(drupal_get_path('module', 'lagarto') . '/lagarto.best_responsive.css');
+}
+

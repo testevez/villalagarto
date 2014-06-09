@@ -20,10 +20,11 @@ files[] = includes/faq.new_page.inc
 files[] = includes/faq.questions_inline.inc
 files[] = includes/faq.questions_top.inc
 files[] = views/faq.views.inc
+configure = /admin/config/content/faq
 
-; Information added by drupal.org packaging script on 2011-08-28
-version = "7.x-1.0-rc1"
+; Information added by drupal.org packaging script on 2012-02-22
+version = "7.x-1.0-rc2"
 core = "7.x"
 project = "faq"
-datestamp = "1314568918"
+datestamp = "1329952549"
 

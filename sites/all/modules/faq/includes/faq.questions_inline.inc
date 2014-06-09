@@ -35,7 +35,7 @@ function template_preprocess_faq_questions_inline(&$variables) {
   $count = 0;
   foreach ($data as $node) {
     $anchor = 'n' . $node->nid;
-    faq_view_question($nodes[$count], $node, $this_page, $anchor);
+    faq_view_question($nodes[$count], $node, NULL, $anchor);
     faq_view_answer($nodes[$count], $node, $back_to_top, $teaser, $links);
     $count++;
   }
@@ -66,6 +66,7 @@ function template_preprocess_faq_category_questions_inline(&$variables) {
   $default_sorting = variable_get('faq_default_sorting', 'DESC');
 
   // Initialise some variables.
+  $variables['use_teaser'] = $teaser;
   $default_weight = 0;
   if ($default_sorting != 'DESC') {
     $default_weight = 1000000;
@@ -73,7 +74,7 @@ function template_preprocess_faq_category_questions_inline(&$variables) {
   $this_page = $_GET['q'];
   $get_child_terms = 0;
   // Check if we're on a faq page.
-  if (arg(0) == 'faq') {
+  if (arg(0) == 'faq-page') {
     // Check if we're on a categorized faq page.
     if (is_numeric(arg(1))) {
       $get_child_terms = arg(1);
@@ -141,12 +142,13 @@ function template_preprocess_faq_category_questions_inline(&$variables) {
 
   // Configure sub-category bodies (theme recursively).
   $variables['subcat_body_list'] = array();
-  if (($get_child_terms && $category_display == 'categories_inline') || ((($show_term_page_children && $this_page != 'faq') || $hide_child_terms) && $category_display == 'hide_qa')) {
+  if (($get_child_terms && $category_display == 'categories_inline') || ((($show_term_page_children && $this_page != 'faq-page') || $hide_child_terms) && $category_display == 'hide_qa')) {
     $variables['subcat_body_list'] = faq_get_child_categories_faqs($term, 'faq_category_questions_inline', $default_weight, $default_sorting, $category_display, $variables['class'], $parent_term);
   }
 
   if (!count($data)) {
     $variables['question_count'] = $count;
+    $variables['nodes'] = array();
     return;
   }
 
@@ -157,12 +159,11 @@ function template_preprocess_faq_category_questions_inline(&$variables) {
     }
     $node_var = array();
     $anchor = 't' . $term->tid . 'n' . $node->nid;
-    faq_view_question($node_var, $node, $this_page, $anchor);
+    faq_view_question($node_var, $node, NULL, $anchor);
     faq_view_answer($node_var, $node, $back_to_top, $teaser, $links);
     $nodes[] = $node_var;
   }
   $variables['nodes'] = $nodes;
   $variables['question_count'] = $count;
-  $variables['use_teaser'] = $teaser;
 }
 

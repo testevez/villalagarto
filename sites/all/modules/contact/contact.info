@@ -5,9 +5,9 @@ core = 7.x
 files[] = contact.test
 configure = admin/structure/contact
 
-; Information added by drupal.org packaging script on 2011-08-26
+; Information added by drupal.org packaging script on 2013-09-30
 version = "7.x-2.x-dev"
 core = "7.x"
 project = "contact"
-datestamp = "1314317475"
+datestamp = "1380566753"
 

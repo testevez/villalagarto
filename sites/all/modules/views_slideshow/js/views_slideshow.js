@@ -90,10 +90,10 @@
         var uniqueID = $(this).attr('id').replace('views_slideshow_controls_text_pause_', '');
         $(this).click(function() {
           if (Drupal.settings.viewsSlideshow[uniqueID].paused) {
-            Drupal.viewsSlideshow.action({ "action": 'play', "slideshowID": uniqueID });
+            Drupal.viewsSlideshow.action({ "action": 'play', "slideshowID": uniqueID, "force": true });
           }
           else {
-            Drupal.viewsSlideshow.action({ "action": 'pause', "slideshowID": uniqueID });
+            Drupal.viewsSlideshow.action({ "action": 'pause', "slideshowID": uniqueID, "force": true });
           }
           return false;
         });
@@ -109,6 +109,8 @@
   Drupal.viewsSlideshowControlsText.pause = function (options) {
     var pauseText = Drupal.theme.prototype['viewsSlideshowControlsPause'] ? Drupal.theme('viewsSlideshowControlsPause') : '';
     $('#views_slideshow_controls_text_pause_' + options.slideshowID + ' a').text(pauseText);
+    $('#views_slideshow_controls_text_pause_' + options.slideshowID).removeClass('views-slideshow-controls-text-status-play');
+    $('#views_slideshow_controls_text_pause_' + options.slideshowID).addClass('views-slideshow-controls-text-status-pause');
   };
 
   /**
@@ -117,6 +119,8 @@
   Drupal.viewsSlideshowControlsText.play = function (options) {
     var playText = Drupal.theme.prototype['viewsSlideshowControlsPlay'] ? Drupal.theme('viewsSlideshowControlsPlay') : '';
     $('#views_slideshow_controls_text_pause_' + options.slideshowID + ' a').text(playText);
+    $('#views_slideshow_controls_text_pause_' + options.slideshowID).removeClass('views-slideshow-controls-text-status-pause');
+    $('#views_slideshow_controls_text_pause_' + options.slideshowID).addClass('views-slideshow-controls-text-status-play');
   };
 
   // Theme the resume control.
@@ -142,7 +146,7 @@
     // Need to use try catch so we don't have to check to make sure every part
     // of the object is defined.
     try {
-      if (typeof Drupal.settings.viewsSlideshowPager[options.slideshowID].top.type != "undefined" && typeof Drupal[Drupal.settings.viewsSlideshowPager[options.slideshowID].top.type].transitionBegin == 'function') {
+      if (typeof Drupal.settings.viewsSlideshowPager != "undefined" && typeof Drupal.settings.viewsSlideshowPager[options.slideshowID].top.type != "undefined" && typeof Drupal[Drupal.settings.viewsSlideshowPager[options.slideshowID].top.type].transitionBegin == 'function') {
         Drupal[Drupal.settings.viewsSlideshowPager[options.slideshowID].top.type].transitionBegin(options);
       }
     }
@@ -151,7 +155,7 @@
     }
 
     try {
-      if (typeof Drupal.settings.viewsSlideshowPager[options.slideshowID].bottom.type != "undefined" && typeof Drupal[Drupal.settings.viewsSlideshowPager[options.slideshowID].bottom.type].transitionBegin == 'function') {
+      if (typeof Drupal.settings.viewsSlideshowPager != "undefined" && typeof Drupal.settings.viewsSlideshowPager[options.slideshowID].bottom.type != "undefined" && typeof Drupal[Drupal.settings.viewsSlideshowPager[options.slideshowID].bottom.type].transitionBegin == 'function') {
         Drupal[Drupal.settings.viewsSlideshowPager[options.slideshowID].bottom.type].transitionBegin(options);
       }
     }
@@ -257,13 +261,21 @@
         // Add the activate and pause on pager hover event to each pager item.
         if (Drupal.settings.viewsSlideshowPagerFields[uniqueID][location].activatePauseOnHover) {
           $(this).children().each(function(index, pagerItem) {
-            $(pagerItem).hover(function() {
+            var mouseIn = function() {
               Drupal.viewsSlideshow.action({ "action": 'goToSlide', "slideshowID": uniqueID, "slideNum": index });
               Drupal.viewsSlideshow.action({ "action": 'pause', "slideshowID": uniqueID });
-            },
-            function() {
+            };
+
+            var mouseOut = function() {
               Drupal.viewsSlideshow.action({ "action": 'play', "slideshowID": uniqueID });
-            });
+            };
+
+            if (jQuery.fn.hoverIntent) {
+              $(pagerItem).hoverIntent(mouseIn, mouseOut);
+            }
+            else {
+              $(pagerItem).hover(mouseIn, mouseOut);
+            }
           });
         }
         else {
@@ -290,7 +302,6 @@
       // Add active class to active pager.
       $('#views_slideshow_pager_field_item_'+ pagerLocation + '_' + options.slideshowID + '_' + options.slideNum).addClass('active');
     }
-
   };
 
   /**
@@ -377,7 +388,7 @@
     var status = {
       'value': true,
       'text': ''
-    }
+    };
 
     // If an action isn't specified return false.
     if (typeof options.action == 'undefined' || options.action == '') {
@@ -389,9 +400,24 @@
     // If we are using pause or play switch paused state accordingly.
     if (options.action == 'pause') {
       Drupal.settings.viewsSlideshow[options.slideshowID].paused = 1;
+      // If the calling method is forcing a pause then mark it as such.
+      if (options.force) {
+        Drupal.settings.viewsSlideshow[options.slideshowID].pausedForce = 1;
+      }
     }
     else if (options.action == 'play') {
-      Drupal.settings.viewsSlideshow[options.slideshowID].paused = 0;
+      // If the slideshow isn't forced pause or we are forcing a play then play
+      // the slideshow.
+      // Otherwise return telling the calling method that it was forced paused.
+      if (!Drupal.settings.viewsSlideshow[options.slideshowID].pausedForce || options.force) {
+        Drupal.settings.viewsSlideshow[options.slideshowID].paused = 0;
+        Drupal.settings.viewsSlideshow[options.slideshowID].pausedForce = 0;
+      }
+      else {
+        status.value = false;
+        status.text += ' ' + Drupal.t('This slideshow is forced paused.');
+        return status;
+      }
     }
 
     // We use a switch statement here mainly just to limit the type of actions
